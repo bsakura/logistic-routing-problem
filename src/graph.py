@@ -5,7 +5,6 @@ affliation: milestone 1
 '''
 
 import networkx as nx
-import time
 from a_star import *
 from load import *
 
