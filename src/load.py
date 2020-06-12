@@ -1,4 +1,7 @@
-
+'''
+filename: load.py
+consisting: load functions
+'''
 def nodeLoader(nodeFile):
     #load nodes
 

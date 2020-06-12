@@ -12,67 +12,106 @@ Welcome to **Oldenburg** ! Kota kecil cantik ini merupakan sebuah kota kecil di 
 Setiap beberapa jam sekali, sebuah perusahaan logistik akan mengirimkan beberapa kurirnya untuk mengantar barang dari kantor pusat mereka ke beberapa titik tujuan yang tersebar di penjuru kota Oldenburg. Anda diminta untuk mencari rute untuk seluruh kurir sehingga jarak yang ditempuh oleh semua kurir paling kecil, sehingga perusahaan logistik dapat menghemat biaya bensin.
 
 ## Multiple-Agent TSP
-Masalah pengantaran barang untuk satu kendaraan dengan fungsi objektif jarak minimal dapat dimodelkan oleh Travelling Salesman Problem. Akan tetapi, perusahaan logistik biasanya memiliki lebih dari satu kendaraan yang berangkat bersamaan, sehingga TSP kurang cocok digunakan. Generalisasi TSP untuk beberapa agen adalah **multiple-agent TSP (mTSP)**, dan model masalah ini akan kita gunakan. Pada mTSP, akan terdapat *m* tur yang akan dibangun. Syarat dari semua tur mirip dengan TSP, yaitu bahwa seluruh tur akan kembali ke simpul awal (mewakili kantor pusat) dan setiap tujuan hanya akan dilewati oleh satu tur.
 
-## Tugas
-Kita akan menggunakan dataset jalanan pada kota Oldenburg yang dapat diakses pada <a href="https://www.cs.utah.edu/~lifeifei/SpatialDataset.htm">tautan ini.</a> Lakukan pengunduhan untuk kedua data jalanan di kota Oldenburg. Data pertama merupakan koordinat simpul, data kedua merupakan data sisi antar simpul. Asumsikan seluruh jalan dua arah.<br> 
-Seperti yang disebutkan sebelumnya, kita akan menggunakan pendekatan mTSP dalam permasalahan ini. Untuk mempermudah anda dan mempermudah penilaian, tugas akan dibagi dalam beberapa tahap.
+The Multiple Traveling Salesman Problem (mTSP) is a generalization of the Traveling Salesman Problem (TSP) in which more than one salesman is allowed. Given a set of cities, one depot (where m salesmen are located), and a cost metric, the objective of the mTSP is to determine a set of routes for m salesmen so as to minimize the total cost of the m routes
 
-### Milestone 1
-Pada milestone 1, anda diminta untuk membangun sebuah upagraf dari graf jalan keseluruhan kota Oldenburg. Upagraf tersebut merupakan sebuah graf lengkap tak berarah, dengan simpul-simpulnya adalah titik tujuan pengiriman barang ditambah titik yang mewakili kantor pusat perusahaan logistik. Simpul-simpul tersebut merupakan masukan program yang dimasukkan oleh pengguna, dengan format masukan bebas. Hasilkan sebuah matriks jarak antar simpul upagraf lengkap. Nilai untuk milestone pertama maksimal adalah **600**.
+## Algorithm Approach
 
-### Milestone 2
-Pada Milestone 2 , anda akan menggunakan upagraf yang telah dihasilkan pada Milestone 1 untuk membangun rute dari para kurir dengan pendekatan mTSP. Tampilkan rute yang diambil oleh tiap kurir. Nilai maksimal pada milestone kedua adalah **1500**
+### Ant Colony Optimization
+To apply ACO to the TSP, we consider the graph defined by associating the set of cities with the set of vertices of the graph. This graph is called construction graph. Since in the TSP it is possible to move from any given city to any other city, the construction graph is fully connected and the number of vertices is equal to the number of cities. We set the lengths of the edges between the vertices to be proportional to the distances between the cities represented by these vertices and we associate pheromone values and heuristic values with the edges of the graph. Pheromone values are modified at runtime and represent the cumulated experience of the ant colony, while heuristic values are problem dependent values that, in the case of the TSP, are set to be the inverse of the lengths of the edges.<br>
 
-### Milestone 3
-Setelah berhasil mendapatkan rute bagi para kurir, selanjutnya anda diminta untuk menggambarkan rute dari para kurir. Visualisasi rute  minimal membedakan warna rute untuk tiap kurir dan menampilkan upagraf yang digunakan untuk membuat rute. Nilai lebih akan diberikan jika anda dapat menampilkan rute beserta seluruh peta jalan di kota Oldenburg. Nilai minimal adalah **800** dan nilai maksimal adalah **1500**
+The ants construct the solutions as follows. Each ant starts from a randomly selected city (vertex of the construction graph). Then, at each construction step it moves along the edges of the graph. Each ant keeps a memory of its path, and in subsequent steps it chooses among the edges that do not lead to vertices that it has already visited. An ant has constructed a solution once it has visited all the vertices of the graph. At each construction step, an ant probabilistically chooses the edge to follow among those that lead to yet unvisited vertices. The probabilistic rule is biased by pheromone values and heuristic information: the higher the pheromone and the heuristic value associated to an edge, the higher the probability an ant will choose that particular edge. Once all the ants have completed their tour, the pheromone on the edges is updated. Each of the pheromone values is initially decreased by a certain percentage. Each edge then receives an amount of additional pheromone proportional to the quality of the solutions to which it belongs (there is one solution per ant).<br>
 
-## Pengerjaan
-Tugas ini individual.<br>
-Lakukan *fork* terhadap *repository* ini.<br>
-Spek tugas cukup umum, sehingga asisten tidak membatasi algoritma maupun bahasa pemrograman yang digunakan, walaupun **penggunaan Python disarankan**. Algoritma yang digunakan untuk pathfinding harus optimal, namun hasil dari mTSP tidak harus optimal (*Note : beberapa pustaka optimization bisa menghasilkan solusi sub-optimal dalam batas waktu tertentu*). Bila merasa sudah menyelesaikan tugas, silahkan lakukan pull request dan hubungi asisten lewat email untuk melakukan demo.<br>
-Pastikan ada menambahkan/menggati README ini saat mengumpulkan. README minimal mengandung :
+This procedure is repeatedly applied until a termination criterion is satisfied.
+<br>
 
-1. Pendekatan algoritma yang digunakan untuk pathfinding dan penyelesaian mTSP, serta 
-2. Cara menjalankan program, termasuk instalasi pustaka bila menggunakan bermacam pustaka
+### A* Star Algorithm
+The A* (or A star) algorithm is a search algorithm which finds the shortest path between two nodes. It is considered as an extension of the Dijkstra algorithm, but tries to improve the runtime by using a heuristic to find the optimal solution. An example for such an heuristic would be the air-line distance (euclidean distance) between the start- and endpoint.<br>
+Normally the A* algorithm is used to find the shortest path from node a to node b in a graph, but it is can be modifed to solve the TSP problem.<br>
+1. Add the start node s to the OPEN list.
+2. If the OPEN list is empty, end the algorithm with no result. In this case a solution can not found.
+3. Chose node n from the OPEN list which has the minimal {\displaystyle f'(i)} and move it from the OPEN to the CLOSED list.
+4. If node n is the destination node the algorithm has found the optimal solution and terminates. To get the shortest path from the start node to the end node travel back from n to s.
+5. Otherwise expand n.
 
-Anda bebas menggunakan pustaka maupun referensi apapun untuk mengerjakan tugas, kecuali kode/pustaka jadi yang melakukan *routing*, karena tujuan tugas adalah membuat sebuah prototipe pembuatan rute. Pastikan anda mencantumkan sumber bilamana anda menggunakan kode dari orang lain. Akan tetapi, pemahaman terhadap solusi masalah menjadi bagian penting dari penilaian , sehingga anda disarankan untuk menuliskan kode anda sendiri.<br>
+## Use The Program
 
-## Penilaian
-Nilai maksimal non-bonus adalah **4200**. Penilaian akan dilakukan berdasarkan : 
-1. kode sumber,
-2. pendekatan solusi, 
-2. demo aplikasi dan ,
-3. pemahaman terhadap solusi masalah.
+In using the program there are several requirements that are ought to be installed in your computer beforehand to ensure that the program runs okay.
 
-Untuk poin (1) dan poin (2) , nilai maksimal adalah **3600** dari ketiga milestone.<br> 
-Demo hanya dapat dilakukan sekali. Demo bernilai **600** poin. Pada demo, anda akan menunjukkan hasil aplikasi dan akan terdapat tanya jawab untuk menguji pemahaman.<br>
-Asisten juga akan menjalankan **plagiarism checking** antar kode sumber peserta. Bila ditemukan adanya kecurangan, maka nilai peserta bersangkutan adalah 0 tanpa pengubahan, dan pengurangan poin maksimal tidak akan berlaku. Perhatikan bahwa selama anda mencantumkan asal kode yang anda salin , tidak menggunakan pustaka untuk *routing* dan tidak menyalin kode milik teman anda, anda tidak akan mendapat masalah.
+### Requirements
 
-## Bonus
-Bonus **300** poin diberikan jika anda dapat mengirimkan hasil algoritma beserta beberapa contoh masukan/keluaran untuk kasus kota San Francisco , dengan jumlah jalanan yang lebih besar dari Kota Oldenburg. Dataset dapat diambil di website yang sama.
+Use the package manager [pip](https://pip.pypa.io/en/stable/) to install:
 
-## Kontak
-Silahkan hubungi asisten lewat line @alamhasabiebaru atau lewat email 13517096@std.stei.itb.ac.id dengan subjek diawal tulisan \[SELEKSI IRK\] . *Note : waktu menjawab bervariasi, namun email biasanya akan dibalas kurang dari sehari. Line mungkin tidak dibalas dalam waktu satu-dua hari. Mohon bersabar :)*. Pertanyaan juga dipersilahkan. Jawaban akan diposting dalam bagian QnA README ini.
+1. [networkx](https://networkx.github.io/documentation/stable/install.html)
 
-## QnA
-- Bagaimana penentuan upagraf ? Apakah bebas oleh developer ?<br>
-Upagraf dibangun dari masukan simpul-simpul tujuan dan simpul kantor pusat. Masukan tersebut berasal dari pengguna, namun developer bebas menentukan format masukan simpul.
-- Bagaimana cara menghitung jarak dua simpul pada upagraf ? Apakah menggunakan jarak koordinat kedua simpul atau menggunakan data jalan, walaupun kedua simpul tidak bertetangga ?<br>
-Tentunya kendaraan kurir bergerak di atas jalanan, tidak bergerak lurus antara du simpul :)  Selain itu, sebuah simpul dapat mencapai simpul lainnya dengan menelusuri jalan. Lakukan penelusuran untuk mendapatkan jaraknya. 
-- Apakah program menggunakan GUI atau command-based ?<br>
-Dibebaskan.
+```bash
+pip install networkx
+```
+2. [matplotlib](https://pypi.org/project/matplotlib/)
 
-## Referensi
-Silahkan gunakan referensi berikut sebagai awal pengerjaan tugas:<br>
+```bash
+pip install matplotlib
+```
+3. [more-itertools](https://pypi.org/project/more-itertools/)
+
+```bash
+pip install more-itertools
+```
+4. [numpy](https://pypi.org/project/numpy/)
+
+```bash
+pip install numpy
+```
+
+
+### Run
+1. Clone this repository or simply download the zip
+2. In your project directory of this cloned repository, open the folder src and run your cmd
+
+```bash
+python main.py
+```
+3. Several inputs are going to be requested in your console, fill the node file with the name of the node and edge files desired in txt, be sure to add the files in the data folder.
+
+```bash
+Samlekum, welcome to mini mtsp
+Enter the node file in txt: OLnode.txt
+Enter the edge file in txt: OLedge.txt
+```
+4. Fill the next field with the number of destinations you want to have excluding the starting point, and fill the field with the requested parameters.
+
+```bash
+Number of destination excluding starting point: 3
+Starting point: 3
+Destination -1: 4
+Destination -2: 5
+Destination -3: 6
+How many salesperson(s) we got: 2
+```
+5. The program will show you the matrix representation of each salesperson's destinations, the route it takes them to complete their tour, and the visualization of their routes in different colors.
+
+#### Milestone 1
+Graph and subgraph of Oldenburg and SanFransisco had been initiated and created using networkx with the destinations as the nodes and the roads connecting them as the edges. The destinations in question are obtained by the user's input by cmd. The distances between the destinations had been implemented into matrix of distances for each salesperson(s).
+
+#### Milestone 2
+The routes taken by each salespersons had been built and shown for each one of them using a-star algorithm and optimized by the ant colony algorithm.
+
+#### Milestone 3
+Visualization had been presented for all nodes and edges in the graph and the routes for each salesperson had been marked in different colors and sizes of the nodes and edges.
+
+## References
 [1] Dataset : https://www.cs.utah.edu/~lifeifei/SpatialDataset.htm<br>
-[2] Pengenalan dan formulasi mTSP : https://neos-guide.org/content/multiple-traveling-salesman-problem-mtsp<br>
-[3] MIP , pustaka Python untuk optimisasi : https://python-mip.readthedocs.io/en/latest/intro.html<br>
-[4] OpenGL untuk Python : https://stackabuse.com/brief-introduction-to-opengl-in-python-with-pyopengl/<br>
+[2] mTSP introduction : https://neos-guide.org/content/multiple-traveling-salesman-problem-mtsp<br>
+[3] ACO optimization : https://github.com/Akavall/AntColonyOptimization<br>
+[4] Networkx for Python : https://networkx.github.io/<br>
 [5]  Li, Feifei, Dihan Cheng, Marios Hadjieleftheriou, George Kollios, and Shang-Hua Teng. "On trip planning queries in spatial databases." In International symposium on spatial and temporal databases, pp. 273-290. Springer, Berlin, Heidelberg, 2005.
 
 ## Credits
 Thank you for Li Fei Fei et. al. for providing the data.
 
 ## Final Words
-Akhir Kata, selamat bersenang-senang ! It's not worth it if you're not having fun.
+Akhir Kata, selamat bersenang-senang ! It's not worth it if you're not having fun. :)
+
+### Author
+Byan Sakura
+13518066

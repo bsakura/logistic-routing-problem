@@ -1,3 +1,8 @@
+'''
+filename: matrix.py
+consisting: matrix functions
+affliation: milestone 1
+'''
 import sys
 
 def intoMatrix(subgraph):
